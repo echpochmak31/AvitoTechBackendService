@@ -11,7 +11,7 @@ services:
     volumes:
       - "${POSTGRES_VOLUME}:/var/lib/postgresql/data"
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT_DST}:${POSTGRES_PORT_SRC}"
     networks:
       - backend
   pgadmin:
@@ -25,6 +25,8 @@ services:
       PGADMIN_DEFAULT_PASSWORD: $PGADMIN_PASSWORD
     volumes:
       - "${PGADMIN_VOLUME}:/var/lib/pgadmin"
+    networks:
+      - backend
 
 
 networks:
