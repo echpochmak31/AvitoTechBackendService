@@ -21,14 +21,14 @@ func NewPgxRepository(ctx context.Context, connString string) (*PgxRepository, e
 	}
 
 	rep := new(PgxRepository)
-	rep.ConnectionString = connString
-	rep.PgxPool = pool
+	rep.connectionString = connString
+	rep.pgxPool = pool
 
 	return rep, nil
 }
 
-func (rep *PgxRepository) GetSegmentsWithStatement(statement string, params ...any) ([]models.AbstractSegment, error) {
-	rows, err := rep.PgxPool.Query(context.Background(), statement, params)
+func (rep *PgxRepository) getSegmentsWithStatement(statement string, params ...any) ([]models.AbstractSegment, error) {
+	rows, err := rep.pgxPool.Query(context.Background(), statement, params)
 	if err != nil {
 		return make([]models.AbstractSegment, 0), err
 	}

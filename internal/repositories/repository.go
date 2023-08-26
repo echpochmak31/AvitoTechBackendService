@@ -9,23 +9,23 @@ import (
 )
 
 type PgxRepository struct {
-	ConnectionString string
-	PgxPool          *pgxpool.Pool
+	connectionString string
+	pgxPool          *pgxpool.Pool
 }
 
 func (rep *PgxRepository) Close() {
-	rep.PgxPool.Close()
+	rep.pgxPool.Close()
 }
 
 func (rep *PgxRepository) GetAllActiveSegments() ([]models.AbstractSegment, error) {
 	statement := "SELECT segment FROM avito.segments"
-	return rep.GetSegmentsWithStatement(statement)
+	return rep.getSegmentsWithStatement(statement)
 }
 
 func (rep *PgxRepository) AddSegment(segmentSlug string) error {
 	statement := "INSERT INTO avito.segments (segment) values ($1) ON CONFLICT DO NOTHING"
 
-	tx, err := rep.PgxPool.BeginTx(context.TODO(), pgx.TxOptions{})
+	tx, err := rep.pgxPool.BeginTx(context.TODO(), pgx.TxOptions{})
 	if err != nil {
 		return err
 	}
@@ -49,7 +49,7 @@ func (rep *PgxRepository) AddSegment(segmentSlug string) error {
 func (rep *PgxRepository) RemoveSegment(segmentSlug string) error {
 	statement1 := "DELETE FROM avito.segments WHERE segment = ($1)"
 	statement2 := "UPDATE avito.user_segment SET deleted_at = NOW() WHERE segment = ($1)"
-	tx, err := rep.PgxPool.BeginTx(context.TODO(), pgx.TxOptions{})
+	tx, err := rep.pgxPool.BeginTx(context.TODO(), pgx.TxOptions{})
 	if err != nil {
 		return err
 	}
@@ -77,7 +77,7 @@ func (rep *PgxRepository) GetUserSegments(userId int64) ([]models.AbstractSegmen
 	statement :=
 		"SELECT segment FROM avito.user_segment " +
 			"WHERE user_id = $1 AND deleted_at IS NULL AND (expired_at IS NULL OR expired_at > NOW())"
-	return rep.GetSegmentsWithStatement(statement, userId)
+	return rep.getSegmentsWithStatement(statement, userId)
 }
 
 func (rep *PgxRepository) AddUserSegments(userId int64, segmentSlugs []string, expirationDate *time.Time) error {
@@ -99,9 +99,9 @@ func (rep *PgxRepository) AddUserSegments(userId int64, segmentSlugs []string, e
 	for _, segmentSlug := range segmentSlugs {
 		if set[segmentSlug] {
 			if expirationDate == nil {
-				_, err = rep.PgxPool.Query(context.Background(), statement, userId, segmentSlug)
+				_, err = rep.pgxPool.Query(context.Background(), statement, userId, segmentSlug)
 			} else {
-				_, err = rep.PgxPool.Query(context.Background(), statement, userId, segmentSlug, *expirationDate)
+				_, err = rep.pgxPool.Query(context.Background(), statement, userId, segmentSlug, *expirationDate)
 			}
 			if err != nil {
 				return err
@@ -125,7 +125,7 @@ func (rep *PgxRepository) RemoveUserSegments(userId int64, segmentSlugs []string
 	statement := "UPDATE avito.user_segment SET deleted_at = NOW() WHERE user_id = $1 AND segment = $2"
 	for _, segmentSlug := range segmentSlugs {
 		if set[segmentSlug] {
-			_, err := rep.PgxPool.Query(context.Background(), statement, userId, segmentSlug)
+			_, err := rep.pgxPool.Query(context.Background(), statement, userId, segmentSlug)
 			if err != nil {
 				return err
 			}
