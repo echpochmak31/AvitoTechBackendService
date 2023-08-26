@@ -1,10 +1,13 @@
 package models
 
-type SegmentType string
+type AbstractSegment interface {
+	GetName() string
+}
 
-const (
-	AVITO_VOICE_MESSAGES  SegmentType = "AVITO_VOICE_MESSAGES"
-	AVITO_PERFORMANCE_VAS SegmentType = "AVITO_PERFORMANCE_VAS"
-	AVITO_DISCOUNT_30     SegmentType = "AVITO_DISCOUNT_30"
-	AVITO_DISCOUNT_50     SegmentType = "AVITO_DISCOUNT_50"
-)
+type SimpleSegment struct {
+	Name string
+}
+
+func (s SimpleSegment) GetName() string {
+	return s.Name
+}
