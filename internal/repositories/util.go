@@ -3,6 +3,7 @@ package repositories
 import (
 	"context"
 	"github.com/echpochmak31/avitotechbackendservice/internal/models"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -27,12 +28,7 @@ func NewPgxRepository(ctx context.Context, connString string) (*PgxRepository, e
 	return rep, nil
 }
 
-func (rep *PgxRepository) getSegmentsWithStatement(statement string, params ...any) ([]models.AbstractSegment, error) {
-	rows, err := rep.pgxPool.Query(context.Background(), statement, params)
-	if err != nil {
-		return make([]models.AbstractSegment, 0), err
-	}
-
+func mapToSegments(rows pgx.Rows) ([]models.AbstractSegment, error) {
 	segments := make([]models.AbstractSegment, 0)
 	for rows.Next() {
 		var segName string

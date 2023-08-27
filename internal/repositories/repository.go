@@ -19,7 +19,11 @@ func (rep *PgxRepository) Close() {
 
 func (rep *PgxRepository) GetAllActiveSegments() ([]models.AbstractSegment, error) {
 	statement := "SELECT segment FROM avito.segments"
-	return rep.getSegmentsWithStatement(statement)
+	rows, err := rep.pgxPool.Query(context.Background(), statement)
+	if err != nil {
+		return make([]models.AbstractSegment, 0), err
+	}
+	return mapToSegments(rows)
 }
 
 func (rep *PgxRepository) AddSegment(segmentSlug string) error {
@@ -77,7 +81,11 @@ func (rep *PgxRepository) GetUserSegments(userId int64) ([]models.AbstractSegmen
 	statement :=
 		"SELECT segment FROM avito.user_segment " +
 			"WHERE user_id = $1 AND deleted_at IS NULL AND (expired_at IS NULL OR expired_at > NOW())"
-	return rep.getSegmentsWithStatement(statement, userId)
+	rows, err := rep.pgxPool.Query(context.Background(), statement, userId)
+	if err != nil {
+		return make([]models.AbstractSegment, 0), err
+	}
+	return mapToSegments(rows)
 }
 
 func (rep *PgxRepository) AddUserSegments(userId int64, segmentSlugs []string, expirationDate *time.Time) error {
