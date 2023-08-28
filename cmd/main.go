@@ -32,9 +32,9 @@ func main() {
 
 	segmentService := services.NewSegmentService(repository)
 	reportService := services.NewReportService(repository, fsConfig)
-	mc := controllers.InitMainController(segmentService, reportService)
+	mc := controllers.InitMainController(segmentService, reportService, "127.0.0.1:8080")
 
-	err = mc.Run(":8080")
+	err = mc.Run()
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -54,9 +54,9 @@ func (mc *MainController) setUserSegments(c *fiber.Ctx) error {
 }
 
 func (mc *MainController) getReport(c *fiber.Ctx) error {
-	reportName := c.Get("Report", "")
+	reportName := c.Params("reportName", "")
 	if reportName == "" {
-		return fiber.NewError(fiber.StatusBadRequest, "Invalid report name header")
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid report name parameter")
 	}
 	return mc.reportService.SendReport(services.NewFiberReportHandler(c, reportName))
 }
@@ -67,10 +67,11 @@ func (mc *MainController) formReport(c *fiber.Ctx) error {
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
 	}
+
 	reportName, err := mc.reportService.FormReport(req.StartDate, req.EndDate)
 	if err != nil {
 		return err
 	}
-	response := responses.FormReportResponse{ReportUri: reportName}
+	response := responses.FormReportResponse{ReportUri: mc.address + "/reports/file/" + reportName}
 	return c.JSON(response)
 }
