@@ -6,16 +6,16 @@ import (
 )
 
 type MainController struct {
-	app           *fiber.App
-	service       services.AbstractSegmentService
-	reportService services.AbstractReportService
+	app            *fiber.App
+	segmentService services.AbstractSegmentService
+	reportService  services.AbstractReportService
 }
 
 func InitMainController(service services.AbstractSegmentService,
 	reportService services.AbstractReportService) *MainController {
 	mc := new(MainController)
 	mc.app = fiber.New()
-	mc.service = service
+	mc.segmentService = service
 	mc.reportService = reportService
 	mc.setupRoutes()
 	return mc

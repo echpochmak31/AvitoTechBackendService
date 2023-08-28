@@ -15,7 +15,7 @@ func (mc *MainController) getActiveUserSegments(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid user id path parameter")
 	}
 
-	segments, err := mc.service.GetActiveUserSegments(userId)
+	segments, err := mc.segmentService.GetActiveUserSegments(userId)
 	if err != nil {
 		return err
 	}
@@ -28,7 +28,7 @@ func (mc *MainController) createNewSegment(c *fiber.Ctx) error {
 	if segmentName == "" {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid segment name header")
 	}
-	err := mc.service.CreateNewSegment(segmentName)
+	err := mc.segmentService.CreateNewSegment(segmentName)
 	if err != nil {
 		return err
 	}
@@ -41,7 +41,7 @@ func (mc *MainController) deleteSegment(c *fiber.Ctx) error {
 	if segmentName == "" {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid segment name header")
 	}
-	return mc.service.DeleteSegment(segmentName)
+	return mc.segmentService.DeleteSegment(segmentName)
 }
 
 func (mc *MainController) setUserSegments(c *fiber.Ctx) error {
@@ -50,7 +50,7 @@ func (mc *MainController) setUserSegments(c *fiber.Ctx) error {
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
 	}
-	return mc.service.SetUserSegments(req.UserId, req.SegmentsToAdd, req.SegmentsToRemove)
+	return mc.segmentService.SetUserSegments(req.UserId, req.SegmentsToAdd, req.SegmentsToRemove)
 }
 
 func (mc *MainController) getReport(c *fiber.Ctx) error {
