@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/echpochmak31/avitotechbackendservice/internal/controllers/requests"
 	"github.com/echpochmak31/avitotechbackendservice/internal/controllers/responses"
+	"github.com/echpochmak31/avitotechbackendservice/internal/services"
 	"github.com/gofiber/fiber/v2"
 	"strconv"
 )
@@ -50,4 +51,26 @@ func (mc *MainController) setUserSegments(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
 	}
 	return mc.service.SetUserSegments(req.UserId, req.SegmentsToAdd, req.SegmentsToRemove)
+}
+
+func (mc *MainController) getReport(c *fiber.Ctx) error {
+	reportName := c.Get("Report", "")
+	if reportName == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid report name header")
+	}
+	return mc.reportService.SendReport(services.NewFiberReportHandler(c, reportName))
+}
+
+func (mc *MainController) formReport(c *fiber.Ctx) error {
+	req := requests.FormReportRequest{}
+	err := json.Unmarshal(c.Body(), &req)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
+	}
+	reportName, err := mc.reportService.FormReport(req.StartDate, req.EndDate)
+	if err != nil {
+		return err
+	}
+	response := responses.FormReportResponse{ReportUri: reportName}
+	return c.JSON(response)
 }

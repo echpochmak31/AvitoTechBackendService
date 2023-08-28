@@ -13,3 +13,7 @@ type Repository interface {
 	AddUserSegments(userId int64, segmentSlugs []string, expirationDate *time.Time) error
 	RemoveUserSegments(userId int64, segmentSlugs []string) error
 }
+
+type ReportsRepository interface {
+	MakeReportFile(startDate time.Time, endDate time.Time, pathToReport string) error
+}

@@ -22,12 +22,17 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	fsConfig, err := configs.GetFileSystemConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	rep, _ := repositories.NewPgxRepository(context.Background(), dbURL)
-	defer rep.Close()
+	repository, _ := repositories.NewPgxRepository(context.Background(), dbURL)
+	defer repository.Close()
 
-	service := services.NewSegmentService(rep)
-	mc := controllers.InitMainController(service)
+	segmentService := services.NewSegmentService(repository)
+	reportService := services.NewReportService(repository, fsConfig)
+	mc := controllers.InitMainController(segmentService, reportService)
 
 	err = mc.Run(":8080")
 	if err != nil {

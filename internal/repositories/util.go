@@ -5,6 +5,8 @@ import (
 	"github.com/echpochmak31/avitotechbackendservice/internal/models"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"strconv"
+	"time"
 )
 
 func NewPgxRepository(ctx context.Context, connString string) (*PgxRepository, error) {
@@ -40,4 +42,8 @@ func mapToSegments(rows pgx.Rows) ([]models.AbstractSegment, error) {
 		segments = append(segments, seg)
 	}
 	return segments, nil
+}
+
+func toTimestampStr(time time.Time) string {
+	return "to_timestamp(" + strconv.FormatInt(time.Unix(), 10) + ")"
 }

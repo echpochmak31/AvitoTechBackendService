@@ -6,14 +6,17 @@ import (
 )
 
 type MainController struct {
-	app     *fiber.App
-	service services.AbstractSegmentService
+	app           *fiber.App
+	service       services.AbstractSegmentService
+	reportService services.AbstractReportService
 }
 
-func InitMainController(service services.AbstractSegmentService) *MainController {
+func InitMainController(service services.AbstractSegmentService,
+	reportService services.AbstractReportService) *MainController {
 	mc := new(MainController)
 	mc.app = fiber.New()
 	mc.service = service
+	mc.reportService = reportService
 	mc.setupRoutes()
 	return mc
 }
@@ -27,4 +30,6 @@ func (mc *MainController) setupRoutes() {
 	mc.app.Delete("/segments", mc.deleteSegment)
 	mc.app.Get("/segments/user/:userId", mc.getActiveUserSegments)
 	mc.app.Post("/segments/user", mc.setUserSegments)
+	mc.app.Get("/reports/file", mc.getReport)
+	mc.app.Post("/reports/form", mc.formReport)
 }

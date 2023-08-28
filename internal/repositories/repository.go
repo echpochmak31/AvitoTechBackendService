@@ -121,3 +121,17 @@ func (rep *PgxRepository) RemoveUserSegments(userId int64, segmentSlugs []string
 
 	return nil
 }
+
+func (rep *PgxRepository) MakeReportFile(startDate time.Time, endDate time.Time, pathToReport string) error {
+	statement := "COPY (SELECT user_id, segment, " +
+		"CASE WHEN deleted_at IS NULL THEN 'Add' ELSE 'Remove' END AS operation, " +
+		"CASE WHEN deleted_at IS NULL THEN created_at ELSE deleted_at END AS date " +
+		"FROM avito.user_segment " +
+		"WHERE created_at >= " + toTimestampStr(startDate) + " AND created_at <= " + toTimestampStr(endDate) +
+		"AND (deleted_at IS NULL OR (deleted_at >= " + toTimestampStr(startDate) +
+		"AND deleted_at <= " + toTimestampStr(endDate) + "))" +
+		"ORDER BY date)" + "TO '" + pathToReport + "' WITH CSV"
+
+	_, err := rep.pgxPool.Query(context.Background(), statement)
+	return err
+}
