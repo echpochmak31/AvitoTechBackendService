@@ -54,9 +54,6 @@ func (r *ReportService) FormReport(startDate time.Time, endDate time.Time) (stri
 }
 
 func (r *ReportService) GetReportName(startDate time.Time, endDate time.Time) string {
-	//start := strings.ReplaceAll(startDate.Format(time.DateTime), " ", "-")
-	//end := strings.ReplaceAll(endDate.Format(time.DateTime), " ", "-")
-	//return start + "_" + end + ".csv"
 	return strconv.FormatInt(startDate.Unix(), 10) + "_" + strconv.FormatInt(endDate.Unix(), 10) + ".csv"
 }
 
