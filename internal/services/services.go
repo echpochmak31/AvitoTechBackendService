@@ -34,9 +34,31 @@ func (s SegmentService) DeleteSegment(segmentName string) error {
 
 func (s SegmentService) SetUserSegments(userId int64, segmentsToAdd []string, segmentsToRemove []string) error {
 	// todo handle expiration date
-	err := s.repository.AddUserSegments(userId, segmentsToAdd, nil)
+	activeSegments, err := s.repository.GetAllActiveSegments()
 	if err != nil {
 		return err
 	}
-	return s.repository.RemoveUserSegments(userId, segmentsToRemove)
+	set := make(map[string]bool)
+	for _, activeSegment := range activeSegments {
+		set[activeSegment.GetName()] = true
+	}
+
+	checkedSegmentsToAdd := make([]string, 0)
+	checkedSegmentsToRemove := make([]string, 0)
+	for _, segment := range segmentsToAdd {
+		if set[segment] {
+			checkedSegmentsToAdd = append(checkedSegmentsToAdd, segment)
+		}
+	}
+	for _, segment := range segmentsToRemove {
+		if set[segment] {
+			checkedSegmentsToRemove = append(checkedSegmentsToRemove, segment)
+		}
+	}
+
+	err = s.repository.AddUserSegments(userId, checkedSegmentsToAdd, nil)
+	if err != nil {
+		return err
+	}
+	return s.repository.RemoveUserSegments(userId, checkedSegmentsToRemove)
 }

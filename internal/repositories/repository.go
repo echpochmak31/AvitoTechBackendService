@@ -89,15 +89,6 @@ func (rep *PgxRepository) GetUserSegments(userId int64) ([]models.AbstractSegmen
 }
 
 func (rep *PgxRepository) AddUserSegments(userId int64, segmentSlugs []string, expirationDate *time.Time) error {
-	activeSegments, err := rep.GetAllActiveSegments()
-	if err != nil {
-		return err
-	}
-	set := make(map[string]bool)
-	for _, activeSegment := range activeSegments {
-		set[activeSegment.GetName()] = true
-	}
-
 	var statement string
 	if expirationDate == nil {
 		statement = "INSERT INTO avito.user_segment (user_id, segment) VALUES ($1, $2)"
@@ -105,15 +96,14 @@ func (rep *PgxRepository) AddUserSegments(userId int64, segmentSlugs []string, e
 		statement = "INSERT INTO avito.user_segment (user_id, segment, expired_at) VALUES ($1, $2, $3)"
 	}
 	for _, segmentSlug := range segmentSlugs {
-		if set[segmentSlug] {
-			if expirationDate == nil {
-				_, err = rep.pgxPool.Query(context.Background(), statement, userId, segmentSlug)
-			} else {
-				_, err = rep.pgxPool.Query(context.Background(), statement, userId, segmentSlug, *expirationDate)
-			}
-			if err != nil {
-				return err
-			}
+		var err error
+		if expirationDate == nil {
+			_, err = rep.pgxPool.Query(context.Background(), statement, userId, segmentSlug)
+		} else {
+			_, err = rep.pgxPool.Query(context.Background(), statement, userId, segmentSlug, *expirationDate)
+		}
+		if err != nil {
+			return err
 		}
 	}
 
@@ -121,22 +111,11 @@ func (rep *PgxRepository) AddUserSegments(userId int64, segmentSlugs []string, e
 }
 
 func (rep *PgxRepository) RemoveUserSegments(userId int64, segmentSlugs []string) error {
-	activeSegments, err := rep.GetAllActiveSegments()
-	if err != nil {
-		return err
-	}
-	set := make(map[string]bool)
-	for _, activeSegment := range activeSegments {
-		set[activeSegment.GetName()] = true
-	}
-
 	statement := "UPDATE avito.user_segment SET deleted_at = NOW() WHERE user_id = $1 AND segment = $2"
 	for _, segmentSlug := range segmentSlugs {
-		if set[segmentSlug] {
-			_, err := rep.pgxPool.Query(context.Background(), statement, userId, segmentSlug)
-			if err != nil {
-				return err
-			}
+		_, err := rep.pgxPool.Query(context.Background(), statement, userId, segmentSlug)
+		if err != nil {
+			return err
 		}
 	}
 
