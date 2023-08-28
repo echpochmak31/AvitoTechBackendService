@@ -7,6 +7,7 @@ type AbstractSegmentService interface {
 	CreateNewSegment(segmentName string) error
 	DeleteSegment(segmentName string) error
 	SetUserSegments(userId int64, segmentsToAdd []string, segmentsToRemove []string) error
+	SynchronizeSegments(ticker *time.Ticker)
 }
 
 type AbstractReportService interface {

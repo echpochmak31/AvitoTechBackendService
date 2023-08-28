@@ -3,13 +3,15 @@ package controllers
 import (
 	"github.com/echpochmak31/avitotechbackendservice/internal/services"
 	"github.com/gofiber/fiber/v2"
+	"time"
 )
 
 type MainController struct {
-	app            *fiber.App
-	address        string
-	segmentService services.AbstractSegmentService
-	reportService  services.AbstractReportService
+	address               string
+	app                   *fiber.App
+	synchronizationTicker *time.Ticker
+	segmentService        services.AbstractSegmentService
+	reportService         services.AbstractReportService
 }
 
 func InitMainController(service services.AbstractSegmentService,
@@ -19,11 +21,13 @@ func InitMainController(service services.AbstractSegmentService,
 	mc.address = address
 	mc.segmentService = service
 	mc.reportService = reportService
+	mc.synchronizationTicker = time.NewTicker(20 * time.Second)
 	mc.setupRoutes()
 	return mc
 }
 
 func (mc *MainController) Run() error {
+	go mc.segmentService.SynchronizeSegments(mc.synchronizationTicker)
 	return mc.app.Listen(mc.address)
 }
 

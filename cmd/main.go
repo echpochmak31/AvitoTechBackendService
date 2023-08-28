@@ -35,9 +35,9 @@ func main() {
 	mc := controllers.InitMainController(segmentService, reportService, "127.0.0.1:8080")
 
 	err = mc.Run()
+
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	defer os.Exit(0)
 }

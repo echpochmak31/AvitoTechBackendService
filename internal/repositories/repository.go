@@ -135,3 +135,9 @@ func (rep *PgxRepository) MakeReportFile(startDate time.Time, endDate time.Time,
 	_, err := rep.pgxPool.Query(context.Background(), statement)
 	return err
 }
+
+func (rep *PgxRepository) DeleteExpiredSegments() error {
+	statement := "UPDATE avito.user_segment SET deleted_at = NOW() WHERE deleted_at IS NULL AND expired_at < NOW()"
+	_, err := rep.pgxPool.Query(context.Background(), statement)
+	return err
+}

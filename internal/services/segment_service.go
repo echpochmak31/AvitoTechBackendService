@@ -1,6 +1,10 @@
 package services
 
-import "github.com/echpochmak31/avitotechbackendservice/internal/repositories"
+import (
+	"github.com/echpochmak31/avitotechbackendservice/internal/repositories"
+	"log"
+	"time"
+)
 
 type SegmentService struct {
 	repository repositories.Repository
@@ -12,7 +16,7 @@ func NewSegmentService(rep repositories.Repository) *SegmentService {
 	return s
 }
 
-func (s SegmentService) GetActiveUserSegments(userId int64) ([]string, error) {
+func (s *SegmentService) GetActiveUserSegments(userId int64) ([]string, error) {
 	segments, err := s.repository.GetUserSegments(userId)
 	if err != nil {
 		return nil, err
@@ -24,15 +28,15 @@ func (s SegmentService) GetActiveUserSegments(userId int64) ([]string, error) {
 	return segmentSlugs, nil
 }
 
-func (s SegmentService) CreateNewSegment(segmentName string) error {
+func (s *SegmentService) CreateNewSegment(segmentName string) error {
 	return s.repository.AddSegment(segmentName)
 }
 
-func (s SegmentService) DeleteSegment(segmentName string) error {
+func (s *SegmentService) DeleteSegment(segmentName string) error {
 	return s.repository.RemoveSegment(segmentName)
 }
 
-func (s SegmentService) SetUserSegments(userId int64, segmentsToAdd []string, segmentsToRemove []string) error {
+func (s *SegmentService) SetUserSegments(userId int64, segmentsToAdd []string, segmentsToRemove []string) error {
 	// todo handle expiration date
 	activeSegments, err := s.repository.GetAllActiveSegments()
 	if err != nil {
@@ -61,4 +65,14 @@ func (s SegmentService) SetUserSegments(userId int64, segmentsToAdd []string, se
 		return err
 	}
 	return s.repository.RemoveUserSegments(userId, checkedSegmentsToRemove)
+}
+
+func (s *SegmentService) SynchronizeSegments(ticker *time.Ticker) {
+	for range ticker.C {
+		err := s.repository.DeleteExpiredSegments()
+		if err != nil {
+			log.Fatal("Synchronization failed: ", err)
+		}
+		log.Println("Synchronization successful")
+	}
 }
