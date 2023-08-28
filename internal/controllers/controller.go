@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/echpochmak31/avitotechbackendservice/internal/controllers/requests"
 	"github.com/echpochmak31/avitotechbackendservice/internal/controllers/responses"
+	"github.com/echpochmak31/avitotechbackendservice/internal/models"
 	"github.com/echpochmak31/avitotechbackendservice/internal/services"
 	"github.com/gofiber/fiber/v2"
 	"strconv"
@@ -50,7 +51,15 @@ func (mc *MainController) setUserSegments(c *fiber.Ctx) error {
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
 	}
-	return mc.segmentService.SetUserSegments(req.UserId, req.SegmentsToAdd, req.SegmentsToRemove)
+
+	segmentsToAdd := make([]models.AbstractSegmentWithTTL, len(req.SegmentsToAdd))
+	for i, requestSegment := range req.SegmentsToAdd {
+		segmentsToAdd[i] = models.SimpleSegmentWithTTL{
+			Name:           requestSegment.Name,
+			ExpirationDate: requestSegment.ExpirationDate,
+		}
+	}
+	return mc.segmentService.SetUserSegments(req.UserId, segmentsToAdd, req.SegmentsToRemove)
 }
 
 func (mc *MainController) getReport(c *fiber.Ctx) error {

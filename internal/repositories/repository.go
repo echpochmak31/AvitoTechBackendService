@@ -88,19 +88,16 @@ func (rep *PgxRepository) GetUserSegments(userId int64) ([]models.AbstractSegmen
 	return mapToSegments(rows)
 }
 
-func (rep *PgxRepository) AddUserSegments(userId int64, segmentSlugs []string, expirationDate *time.Time) error {
-	var statement string
-	if expirationDate == nil {
-		statement = "INSERT INTO avito.user_segment (user_id, segment) VALUES ($1, $2)"
-	} else {
-		statement = "INSERT INTO avito.user_segment (user_id, segment, expired_at) VALUES ($1, $2, $3)"
-	}
-	for _, segmentSlug := range segmentSlugs {
+func (rep *PgxRepository) AddUserSegments(userId int64, segments []models.AbstractSegmentWithTTL) error {
+	statement := "INSERT INTO avito.user_segment (user_id, segment) VALUES ($1, $2)"
+	withExpirationDate := "INSERT INTO avito.user_segment (user_id, segment, expired_at) VALUES ($1, $2, $3)"
+	for _, seg := range segments {
 		var err error
-		if expirationDate == nil {
-			_, err = rep.pgxPool.Query(context.Background(), statement, userId, segmentSlug)
+		expDate := seg.GetExpirationDate()
+		if expDate.IsZero() {
+			_, err = rep.pgxPool.Query(context.Background(), statement, userId, seg.GetName())
 		} else {
-			_, err = rep.pgxPool.Query(context.Background(), statement, userId, segmentSlug, *expirationDate)
+			_, err = rep.pgxPool.Query(context.Background(), withExpirationDate, userId, seg.GetName(), expDate)
 		}
 		if err != nil {
 			return err

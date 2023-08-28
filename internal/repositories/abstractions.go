@@ -10,7 +10,7 @@ type Repository interface {
 	AddSegment(segmentSlug string) error
 	RemoveSegment(segmentSlug string) error
 	GetUserSegments(userId int64) ([]models.AbstractSegment, error)
-	AddUserSegments(userId int64, segmentSlugs []string, expirationDate *time.Time) error
+	AddUserSegments(userId int64, segments []models.AbstractSegmentWithTTL) error
 	RemoveUserSegments(userId int64, segmentSlugs []string) error
 	DeleteExpiredSegments() error
 }

@@ -1,6 +1,7 @@
 package services
 
 import (
+	"github.com/echpochmak31/avitotechbackendservice/internal/models"
 	"github.com/echpochmak31/avitotechbackendservice/internal/repositories"
 	"log"
 	"time"
@@ -36,8 +37,11 @@ func (s *SegmentService) DeleteSegment(segmentName string) error {
 	return s.repository.RemoveSegment(segmentName)
 }
 
-func (s *SegmentService) SetUserSegments(userId int64, segmentsToAdd []string, segmentsToRemove []string) error {
-	// todo handle expiration date
+func (s *SegmentService) SetUserSegments(
+	userId int64,
+	segmentsToAdd []models.AbstractSegmentWithTTL,
+	segmentsToRemove []string) error {
+
 	activeSegments, err := s.repository.GetAllActiveSegments()
 	if err != nil {
 		return err
@@ -47,10 +51,10 @@ func (s *SegmentService) SetUserSegments(userId int64, segmentsToAdd []string, s
 		set[activeSegment.GetName()] = true
 	}
 
-	checkedSegmentsToAdd := make([]string, 0)
+	checkedSegmentsToAdd := make([]models.AbstractSegmentWithTTL, 0)
 	checkedSegmentsToRemove := make([]string, 0)
 	for _, segment := range segmentsToAdd {
-		if set[segment] {
+		if set[segment.GetName()] {
 			checkedSegmentsToAdd = append(checkedSegmentsToAdd, segment)
 		}
 	}
@@ -60,7 +64,7 @@ func (s *SegmentService) SetUserSegments(userId int64, segmentsToAdd []string, s
 		}
 	}
 
-	err = s.repository.AddUserSegments(userId, checkedSegmentsToAdd, nil)
+	err = s.repository.AddUserSegments(userId, checkedSegmentsToAdd)
 	if err != nil {
 		return err
 	}

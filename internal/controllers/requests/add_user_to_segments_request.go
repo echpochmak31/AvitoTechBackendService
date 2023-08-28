@@ -1,7 +1,16 @@
 package requests
 
+import (
+	"time"
+)
+
+type SegmentWithTTl struct {
+	Name           string
+	ExpirationDate time.Time
+}
+
 type AddUserToSegmentsRequest struct {
 	UserId           int64
-	SegmentsToAdd    []string
+	SegmentsToAdd    []SegmentWithTTl
 	SegmentsToRemove []string
 }
