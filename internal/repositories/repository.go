@@ -26,8 +26,9 @@ func (rep *PgxRepository) GetAllActiveSegments() ([]models.AbstractSegment, erro
 	return mapToSegments(rows)
 }
 
-func (rep *PgxRepository) AddSegment(segmentSlug string) error {
-	statement := "INSERT INTO avito.segments (segment) values ($1) ON CONFLICT DO NOTHING"
+func (rep *PgxRepository) AddSegment(segmentName string, userPercentage float32) error {
+	statement := "INSERT INTO avito.segments (segment, user_percentage) values ($1, $2) " +
+		"ON CONFLICT (segment) DO UPDATE SET user_percentage = $2"
 
 	tx, err := rep.pgxPool.BeginTx(context.TODO(), pgx.TxOptions{})
 	if err != nil {
@@ -42,15 +43,22 @@ func (rep *PgxRepository) AddSegment(segmentSlug string) error {
 		}
 	}()
 
-	_, err = tx.Exec(context.TODO(), statement, segmentSlug)
+	_, err = tx.Exec(context.TODO(), statement, segmentName, userPercentage)
 	if err != nil {
 		return err
 	}
+	if userPercentage == 0.0 {
+		return nil
+	}
 
+	err = rep.synchronizeSegmentAndUsers(segmentName, userPercentage)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
-func (rep *PgxRepository) RemoveSegment(segmentSlug string) error {
+func (rep *PgxRepository) RemoveSegment(segmentName string) error {
 	statement1 := "DELETE FROM avito.segments WHERE segment = ($1)"
 	statement2 := "UPDATE avito.user_segment SET deleted_at = NOW() WHERE segment = ($1)"
 	tx, err := rep.pgxPool.BeginTx(context.TODO(), pgx.TxOptions{})
@@ -66,11 +74,11 @@ func (rep *PgxRepository) RemoveSegment(segmentSlug string) error {
 		}
 	}()
 
-	_, err = tx.Exec(context.TODO(), statement1, segmentSlug)
+	_, err = tx.Exec(context.TODO(), statement1, segmentName)
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec(context.TODO(), statement2, segmentSlug)
+	_, err = tx.Exec(context.TODO(), statement2, segmentName)
 	if err != nil {
 		return err
 	}
@@ -104,7 +112,7 @@ func (rep *PgxRepository) AddUserSegments(userId int64, segments []models.Abstra
 		}
 	}
 
-	return nil
+	return rep.synchronizeAllSegmentsAndUsers()
 }
 
 func (rep *PgxRepository) RemoveUserSegments(userId int64, segmentSlugs []string) error {

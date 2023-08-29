@@ -27,7 +27,7 @@ func InitMainController(service services.AbstractSegmentService,
 }
 
 func (mc *MainController) Run() error {
-	go mc.segmentService.SynchronizeSegments(mc.synchronizationTicker)
+	//go mc.segmentService.SynchronizeSegments(mc.synchronizationTicker)
 	return mc.app.Listen(mc.address)
 }
 

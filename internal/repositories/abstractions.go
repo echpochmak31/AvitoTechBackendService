@@ -7,8 +7,8 @@ import (
 
 type Repository interface {
 	GetAllActiveSegments() ([]models.AbstractSegment, error)
-	AddSegment(segmentSlug string) error
-	RemoveSegment(segmentSlug string) error
+	AddSegment(segmentName string, userPercentage float32) error
+	RemoveSegment(segmentName string) error
 	GetUserSegments(userId int64) ([]models.AbstractSegment, error)
 	AddUserSegments(userId int64, segments []models.AbstractSegmentWithTTL) error
 	RemoveUserSegments(userId int64, segmentSlugs []string) error

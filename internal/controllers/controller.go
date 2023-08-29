@@ -25,11 +25,12 @@ func (mc *MainController) getActiveUserSegments(c *fiber.Ctx) error {
 }
 
 func (mc *MainController) createNewSegment(c *fiber.Ctx) error {
-	segmentName := c.Get("slug", "")
-	if segmentName == "" {
-		return fiber.NewError(fiber.StatusBadRequest, "Invalid segment name header")
+	req := requests.CreateSegmentRequest{}
+	err := json.Unmarshal(c.Body(), &req)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid request body")
 	}
-	err := mc.segmentService.CreateNewSegment(segmentName)
+	err = mc.segmentService.CreateNewSegment(req.SegmentName, req.UserPercentage)
 	if err != nil {
 		return err
 	}

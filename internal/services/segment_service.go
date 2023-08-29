@@ -29,8 +29,8 @@ func (s *SegmentService) GetActiveUserSegments(userId int64) ([]string, error) {
 	return segmentSlugs, nil
 }
 
-func (s *SegmentService) CreateNewSegment(segmentName string) error {
-	return s.repository.AddSegment(segmentName)
+func (s *SegmentService) CreateNewSegment(segmentName string, userPercentage float32) error {
+	return s.repository.AddSegment(segmentName, userPercentage)
 }
 
 func (s *SegmentService) DeleteSegment(segmentName string) error {
@@ -68,7 +68,8 @@ func (s *SegmentService) SetUserSegments(
 	if err != nil {
 		return err
 	}
-	return s.repository.RemoveUserSegments(userId, checkedSegmentsToRemove)
+	err = s.repository.RemoveUserSegments(userId, checkedSegmentsToRemove)
+	return err
 }
 
 func (s *SegmentService) SynchronizeSegments(ticker *time.Ticker) {

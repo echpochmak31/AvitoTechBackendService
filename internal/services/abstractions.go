@@ -7,7 +7,7 @@ import (
 
 type AbstractSegmentService interface {
 	GetActiveUserSegments(userId int64) ([]string, error)
-	CreateNewSegment(segmentName string) error
+	CreateNewSegment(segmentName string, userPercentage float32) error
 	DeleteSegment(segmentName string) error
 	SetUserSegments(userId int64, segmentsToAdd []models.AbstractSegmentWithTTL, segmentsToRemove []string) error
 	SynchronizeSegments(ticker *time.Ticker)
