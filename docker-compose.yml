@@ -10,6 +10,7 @@ services:
       POSTGRES_DB: segments_service
     volumes:
       - "${POSTGRES_VOLUME}:/var/lib/postgresql/data"
+      - "${PATH_TO_REPORTS}:${VIRTUAL_PATH_TO_REPORTS}"
     ports:
       - "${POSTGRES_PORT_DST}:${POSTGRES_PORT_SRC}"
     networks:
