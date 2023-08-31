@@ -1,13 +1,13 @@
 # Сервис динамического сегментирования пользователей
 
-Сервис написан на Go с использованием фреймфорка [fiber](https://github.com/gofiber/fiber).\
+Сервис написан на Go с использованием фреймворка [fiber](https://github.com/gofiber/fiber).\
 В docker compose развернута PostgreSQL 15 вместе с pgAdmin.\
 Для взаимодействия с БД используется драйвер [pgx](https://github.com/jackc/pgx).
 
 ### Дополнительно:
 - Тесты с использование [GoMock](https://github.com/golang/mock/gomock).\
-Их можно видеть в ветке [tests](https://github.com/echpochmak31/AvitoTechBackendService/tree/tests)
-- [Документация API](https://app.swaggerhub.com/apis/echpochmak31/AvitoTechSwagger/1.0.0) с использованием Swagger
+Их можно видеть в ветке [tests](https://github.com/echpochmak31/AvitoTechBackendService/tree/tests).
+- [Документация API](https://app.swaggerhub.com/apis/echpochmak31/AvitoTechSwagger/1.0.0) с использованием Swagger.
 - Реализовано сохранение истории попадания/выбывания пользователя из сегмента с возможностью получения отчета.
 - Реализована возможность задавать время автоматического удаления пользователя из сегмента.
 - Возможность задать для сегмента процент пользователей, которые будут добавляться в него автоматически. 
