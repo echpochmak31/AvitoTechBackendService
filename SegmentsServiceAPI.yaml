@@ -1,0 +1,157 @@
+openapi: 3.0.1
+info:
+  title: AvitoTech Segments Service API
+  version: 1.0.0
+  contact:
+    name: Gleb Mikheev
+    url: https://github.com/echpochmak31/AvitoTechBackendService
+paths:
+  /segments:
+    post:
+      summary: Create new segment
+      requestBody:
+              content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/CreateSegmentRequest'
+      responses:
+        '201':
+          description: Segment created
+        '400':
+          description: Invalid request parameters
+    delete:
+      summary: Delete segment
+      parameters:
+        - in: header
+          name: slug
+          schema:
+            type: string
+          required: true
+          description: Segment name to delete
+      responses:
+        '200':
+          description: Segment deleted
+        '400':
+          description: Invalid request parameters
+  /segments/user:
+    post:
+      summary: Add user to segments
+      requestBody:
+              content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/AddUserToSegmentsRequest'
+      responses:
+        '200':
+          description: User's segments updated
+        '400':
+          description: Invalid request parameters
+  /segments/user/{userId}:
+    get:
+      summary: Get active user's segments
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: integer
+            format: int64
+          required: true
+          description: Integer user identifier
+      responses:
+        '200':
+          description: Segments received 
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetUserSegmentsResponse'
+        '400':
+          description: Invalid request parameters
+  /reports/form:
+    post:
+      summary: From a report by users
+      requestBody:
+              content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/FormReportRequest'
+      responses:
+        '200':
+          description: Report formed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FormReportResponse'
+        '400':
+          description: Invalid request parameters
+  /reports/file/{reportName}:
+    get:
+      summary: Get report CSV file
+      parameters:
+        - in: path
+          name: reportName
+          schema:
+            type: string
+          required: true
+          description: Report file name
+      responses:
+        '200':
+          description: Report received
+          content:
+            text/csv:
+              schema:
+                type: string
+        '400':
+          description: Invalid request parameters     
+components:
+  schemas:
+    CreateSegmentRequest:
+      type: object
+      properties:
+        segmentName:
+          type: string
+        userPercentage:
+          type: number
+          format: float
+    AddUserToSegmentsRequest:
+      type: object
+      properties:
+        userId:
+          type: integer
+          format: int64
+        segmentsToAdd:
+          type: array
+          items:
+            type: object
+            properties:
+              Name:
+                type: string
+              ExpirationDate:
+                type: string
+                format: date-time
+        segmentsToRemove:
+          type: array
+          items:
+            type: string
+    GetUserSegmentsResponse:
+      type: object
+      properties:
+        segmentSlugs:
+          type: array
+          items:
+            type: string
+    FormReportRequest:
+      type: object
+      properties:
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+    FormReportResponse:
+      type: object
+      properties:
+        reportUri:
+          type: string
+          format: uri
+
