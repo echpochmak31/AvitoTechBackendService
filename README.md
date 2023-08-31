@@ -8,7 +8,7 @@
 1. Убедитесь, что установлена 1.18 версия Go или выше
 2. Создайте свой проект и используйте ``go mod init github.com/your/repo``
 3. Запустите команду ``go get github.com/echpochmak31/avitotechbackendservice@main``
-4. Поднимите docker compose
+4. Поднимите docker compose командой ``docker compose up -d``
 
 ## Getting started
 Прежде убедитесь, что все [необходимые переменные окружения](#переменные-окружения) доступны.
